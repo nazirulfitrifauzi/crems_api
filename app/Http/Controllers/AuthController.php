@@ -6,69 +6,43 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
-
+use App\Http\Requests\RegisterPostRequest;
+use App\Http\Requests\LoginRequest;
 class AuthController extends Controller
 {
-    public function register(Request $request) {
-        $fields = $request->validate([
-            'name' => 'required|string',
-            'email' => 'required|string|unique:users,email|unique:users|regex:/(.*)csc\.net\.my$/i',
-            'password' => 'required|string|confirmed'
-        ],[
-            'email.regex' => 'We appreciate your interest on using our System. However at the moment we offer this service only to our company!'
-        ]);
-
-        $user = User::create([
-            'name' => $fields['name'],
-            'email' => $fields['email'],
-            'password' => bcrypt($fields['password'])
-        ]);
+    public function register(RegisterPostRequest $request) {
+        $user = User::create($request->all());
 
         $token = $user->createToken('CremsToken')->plainTextToken;
 
-        $response = [
+        return $this->successResponse("Successfully login ", [
             'user' => $user,
             'token' => $token,
-            'status' => 201
-        ];
-
-        return response($response, 201);
+        ], 201);
     }
 
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
-        $fields = $request->validate([
-            'email' => 'required|string',
-            'password' => 'required|string'
-        ]);
-
         // check email
-        $user = User::where('email', $fields['email'])->first();
+        $user = User::where('email', $request->email)->first();
 
         // check password
-        if(!$user || !Hash::check($fields['password'], $user->password)) {
-            return response([
-                'message' => 'Invalid email/password.'
-            ], 401);
+        if(!$user || !Hash::check($request->password, $user->password)) {
+            return $this->errorResponse('Invalid email/password.', 401);
         }
 
         $token = $user->createToken('CremsToken')->plainTextToken;
 
-        $response = [
+        return $this->successResponse("Successfully login ", [
             'user' => $user,
             'token' => $token,
-            'status' => 201
-        ];
-
-        return response($response, 201);
+        ], 201);
     }
 
     public function logout() {
         auth()->user()->tokens()->delete();
 
-        return [
-            'message' => 'Logged Out',
-            'code' => 201
-        ];
+        return $this->successResponse("Logged Out ",null, 201);
+        
     }
 }
