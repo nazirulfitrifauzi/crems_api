@@ -12,8 +12,10 @@ class AuthController extends Controller
     public function register(Request $request) {
         $fields = $request->validate([
             'name' => 'required|string',
-            'email' => 'required|string|unique:users,email',
+            'email' => 'required|string|unique:users,email|unique:users|regex:/(.*)csc\.net\.my$/i',
             'password' => 'required|string|confirmed'
+        ],[
+            'email.regex' => 'We appreciate your interest on using our System. However at the moment we offer this service only to our company!'
         ]);
 
         $user = User::create([
