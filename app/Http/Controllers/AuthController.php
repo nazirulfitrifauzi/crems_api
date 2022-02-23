@@ -30,8 +30,10 @@ class AuthController extends Controller
         // check password
         if(!$user || !Hash::check($request->password, $user->password)) { // bad cred
             return $this->errorResponse('Invalid email/password.', 401);
-        } else if ($user->active == 0) { // not activated yet
+        } else if ($user->active == NULL) { // not activated yet
             return $this->errorResponse('Please wait for Admin approval.', 401);
+        } else if ($user->active == 2) { // deactivated user
+            return $this->errorResponse('Your account has been deactivated..', 401);
         }
 
         $token = $user->createToken('CremsToken')->plainTextToken;
