@@ -14,11 +14,9 @@ class AuthController extends Controller
     public function register(RegisterPostRequest $request) {
         User::create($request->all());
         $user = User::where('email', $request->email)->first();
-        $token = $user->createToken('CremsToken')->plainTextToken;
 
-        return $this->successResponse("Successfully login ", [
+        return $this->successResponse("Successfully Registered. Please wait to be approved.", [
             'user' => $user,
-            'token' => $token,
         ], 201);
     }
 
