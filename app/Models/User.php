@@ -50,4 +50,20 @@ class User extends Authenticatable
     public function setPasswordAttribute($value) {
         $this->attributes['password'] = bcrypt($value);
     }
+
+    /**
+     * Get the role associated with the user.
+     */
+    public function roles()
+    {
+        return $this->hasOne(RefRole::class, 'id', 'role');
+    }
+
+    /**
+     * Get the account status associated with the user.
+     */
+    public function accStat()
+    {
+        return $this->hasOne(RefAccStatus::class, 'id', 'active');
+    }
 }
