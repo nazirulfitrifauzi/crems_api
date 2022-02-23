@@ -8,11 +8,12 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\RegisterPostRequest;
 use App\Http\Requests\LoginRequest;
+
 class AuthController extends Controller
 {
     public function register(RegisterPostRequest $request) {
-        $user = User::create($request->all());
-
+        User::create($request->all());
+        $user = User::where('email', $request->email)->first();
         $token = $user->createToken('CremsToken')->plainTextToken;
 
         return $this->successResponse("Successfully login ", [
@@ -27,8 +28,10 @@ class AuthController extends Controller
         $user = User::where('email', $request->email)->first();
 
         // check password
-        if(!$user || !Hash::check($request->password, $user->password)) {
+        if(!$user || !Hash::check($request->password, $user->password)) { // bad cred
             return $this->errorResponse('Invalid email/password.', 401);
+        } else if ($user->active == 0) { // not activated yet
+            return $this->errorResponse('Please wait for Admin approval.', 401);
         }
 
         $token = $user->createToken('CremsToken')->plainTextToken;
@@ -43,6 +46,5 @@ class AuthController extends Controller
         auth()->user()->tokens()->delete();
 
         return $this->successResponse("Logged Out ",null, 201);
-        
     }
 }
