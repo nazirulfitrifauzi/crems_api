@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfilePostRequest;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 
 class ProfileController extends Controller
@@ -19,7 +20,7 @@ class ProfileController extends Controller
         }
 
         return $this->successResponse("Avatar successfully upload", [
-            'user' => $user
+            'user' => new UserResource($user),
         ], 201);
     }
 }

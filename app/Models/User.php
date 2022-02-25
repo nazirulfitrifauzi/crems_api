@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-
+use Storage;
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
@@ -66,4 +66,13 @@ class User extends Authenticatable
     {
         return $this->hasOne(RefAccStatus::class, 'id', 'active');
     }
+
+    /**
+     * Get avatar url - dekat sini pun boleh , dekat resource pun boleh
+     */
+    public function getAvatarUrlAttribute()
+    {
+        return Storage::disk('public')->url($this->avatar);
+    }
+
 }
